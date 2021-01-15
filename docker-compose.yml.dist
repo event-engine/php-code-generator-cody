@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+
+  # The actual client application
+  iio-cody:
+    image: prooph/php:7.4-cli
+    volumes:
+      - .:/app
+      # mount your business application folder to /service
+      #- ../my-awesome-application:/service
+    user: ${UID}
+    ports:
+      - 3311:8080
+    command: vendor/bin/php-watcher public/index.php

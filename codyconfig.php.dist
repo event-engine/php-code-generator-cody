@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @see       https://github.com/event-engine/php-code-generator-cody for the canonical source repository
+ * @copyright https://github.com/event-engine/php-code-generator-cody/blob/master/COPYRIGHT.md
+ * @license   https://github.com/event-engine/php-code-generator-cody/blob/master/LICENSE.md MIT License
+ */
+
+declare(strict_types=1);
+
+use EventEngine\CodeGenerator\Cody\Aggregate;
+use EventEngine\CodeGenerator\Cody\Command;
+use EventEngine\CodeGenerator\Cody\Context;
+use EventEngine\CodeGenerator\Cody\Event;
+use EventEngine\InspectioCody\CodyConfig;
+
+/**
+ * business application is mounted to /service in docker-compose.yml
+ */
+$context = new Context(
+    'Inspectio\\Board',
+    'InspectIO',
+    '/service/src',
+    '/service/src/Domain/Shared/ValueObject'
+);
+
+return new CodyConfig(
+    $context,
+    [
+        CodyConfig::HOOK_ON_AGGREGATE => new Aggregate(),
+        CodyConfig::HOOK_ON_COMMAND => new Command(),
+        CodyConfig::HOOK_ON_EVENT => new Event(),
+    ]
+);

@@ -1,0 +1,83 @@
+{
+    "name": "event-engine/php-code-generator-cody",
+    "description": "PHP Code Generator for Event Engine powered by Cody",
+    "license": "MIT",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alexander Miertsch",
+            "email": "contact@prooph.de",
+            "homepage": "http://www.prooph.de"
+        },
+        {
+            "name": "Sandro Keil",
+            "email": "contact@prooph.de",
+            "homepage": "http://prooph-software.com/"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/event-engine/php-code-generator-cody/issues",
+        "source": "https://github.com/event-engine/php-code-generator-cody"
+    },
+    "autoload": {
+        "psr-4": {
+            "EventEngine\\CodeGenerator\\Cody\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EventEngineTest\\CodeGenerator\\Cody\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-json": "*",
+        "event-engine/php-code-generator-event-engine-ast": "dev-feature/update-to-latest-code-generation-features",
+        "event-engine/php-inspectio-cody": "dev-master",
+        "event-engine/php-inspectio-graph-cody": "dev-master",
+        "fig/http-message-util": "^1.1",
+        "laminas/laminas-filter": "^2.9",
+        "nikic/php-parser": "^v4.10.3",
+        "open-code-modeling/json-schema-to-php-ast": "^0.3.0",
+        "open-code-modeling/php-code-ast": "^0.10.0",
+        "open-code-modeling/php-code-generator-transformator": "^0.1.0",
+        "open-code-modeling/php-filter": "^0.1.1",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "league/flysystem": "^2.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/phpstan": "^0.12.33",
+        "phpstan/phpstan-strict-rules": "^0.12.4",
+        "phpunit/phpunit": "^9.5.0",
+        "prooph/php-cs-fixer-config": "^v0.4.0",
+        "roave/security-advisories": "dev-master"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "check": [
+            "@cs",
+            "@test",
+            "@analyse"
+        ],
+        "cs": "php-cs-fixer fix -v --diff --dry-run",
+        "cs-fix": "php-cs-fixer fix -v --diff",
+        "test": "vendor/bin/phpunit",
+        "analyse": "php vendor/bin/phpstan.phar analyse --no-interaction"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+        }
+    },
+    "archive": {
+        "exclude": [
+            ".coveralls.yml",
+            ".travis.yml",
+            "build",
+            "phpunit.xml*",
+            "tests"
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+.env
+app.env
+.phpunit.result.cache
+build/*
+vendor/
+.idea
+.php_cs.cache
+docker-compose.yml
+codyconfig.php
+service/
