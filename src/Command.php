@@ -10,9 +10,11 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody;
 
+use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
 use EventEngine\CodeGenerator\EventEngineAst\CommandDescriptionFactory;
 use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
 use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
@@ -41,7 +43,7 @@ final class Command extends BaseHook
     public function __construct()
     {
         parent::__construct();
-        $this->metadataFactory = new InspectioGraphCody\Metadata\NodeJsonMetadataFactory();
+        $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
     }
 
     public function __invoke(InspectioGraphCody\Node $command, Context $ctx): ResponseInterface
@@ -65,7 +67,7 @@ final class Command extends BaseHook
 
     private function generateApiDescriptionClass(Context $ctx): string
     {
-        $factory = EmptyClassFactory::withDefaultConfig($ctx->filterDirectoryToNamespace);
+        $factory = EmptyClassFactory::withDefaultConfig();
         $factory->config()->getClassInfoList()->addClassInfo(
             new Psr4Info(
                 $ctx->srcFolder,
@@ -91,10 +93,7 @@ final class Command extends BaseHook
 
     private function generateJsonSchema($ctx, InspectioGraphCody\EventSourcingAnalyzer $analyzer): array
     {
-        $factory = CommandDescriptionFactory::withDefaultConfig(
-            $ctx->filterConstName,
-            $ctx->filterConstValue
-        );
+        $factory = CommandDescriptionFactory::withDefaultConfig();
 
         $schemas = $factory->componentMetadataSchema()(
             $analyzer,
@@ -138,10 +137,7 @@ final class Command extends BaseHook
         string $code,
         array $schemas
     ): string {
-        $factory = CommandDescriptionFactory::withDefaultConfig(
-            $ctx->filterConstName,
-            $ctx->filterConstValue
-        );
+        $factory = CommandDescriptionFactory::withDefaultConfig();
 
         $updatedCode = $factory->component()($analyzer, $code, $schemas);
 

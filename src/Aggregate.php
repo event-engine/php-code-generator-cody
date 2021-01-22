@@ -10,11 +10,13 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody;
 
+use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
 use EventEngine\CodeGenerator\EventEngineAst\AggregateBehaviourFactory;
 use EventEngine\CodeGenerator\EventEngineAst\AggregateDescriptionFactory;
 use EventEngine\CodeGenerator\EventEngineAst\AggregateStateFactory;
 use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
 use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Http\Message\Response;
 use EventEngine\InspectioGraphCody;
@@ -39,7 +41,7 @@ final class Aggregate extends BaseHook
     private $aggregatePath;
 
     /**
-     * @var InspectioGraphCody\Metadata\NodeJsonMetadataFactory
+     * @var InspectioJson\MetadataFactory
      */
     private $metadataFactory;
 
@@ -56,7 +58,7 @@ final class Aggregate extends BaseHook
     public function __construct()
     {
         parent::__construct();
-        $this->metadataFactory = new InspectioGraphCody\Metadata\NodeJsonMetadataFactory();
+        $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
     }
 
     public function __invoke(InspectioGraphCody\Node $aggregate, Context $ctx): ResponseInterface
@@ -92,7 +94,7 @@ final class Aggregate extends BaseHook
 
     private function generateApiDescriptionClass($ctx): string
     {
-        $factory = EmptyClassFactory::withDefaultConfig($ctx->filterDirectoryToNamespace);
+        $factory = EmptyClassFactory::withDefaultConfig();
         $factory->config()->getClassInfoList()->addClassInfo(
             new Psr4Info(
                 $ctx->srcFolder,
@@ -122,11 +124,7 @@ final class Aggregate extends BaseHook
         InspectioGraphCody\EventSourcingAnalyzer $analyzer,
         string $code
     ): string {
-        $factory = AggregateDescriptionFactory::withDefaultConfig(
-            $ctx->filterConstName,
-            $ctx->filterConstValue,
-            $ctx->filterDirectoryToNamespace
-        );
+        $factory = AggregateDescriptionFactory::withDefaultConfig();
         $factory->config()->getClassInfoList()->addClassInfo(
             new Psr4Info(
                 $ctx->srcFolder,
@@ -265,11 +263,7 @@ final class Aggregate extends BaseHook
 
     private function initFactories($ctx): void
     {
-        $this->aggregateStateFactory = AggregateStateFactory::withDefaultConfig(
-            $ctx->filterConstName,
-            $ctx->filterConstValue,
-            $ctx->filterDirectoryToNamespace
-        );
+        $this->aggregateStateFactory = AggregateStateFactory::withDefaultConfig();
 
         $this->aggregateStateFactory->config()->getClassInfoList()->addClassInfo(
             new Psr4Info(
@@ -281,9 +275,6 @@ final class Aggregate extends BaseHook
         );
 
         $this->aggregateBehaviourFactory = AggregateBehaviourFactory::withDefaultConfig(
-            $ctx->filterConstName,
-            $ctx->filterConstValue,
-            $ctx->filterDirectoryToNamespace,
             $this->aggregateStateFactory->config()
         );
 
