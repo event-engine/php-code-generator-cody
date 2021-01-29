@@ -15,12 +15,12 @@ use EventEngine\CodeGenerator\EventEngineAst\CommandDescriptionFactory;
 use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
 use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
+use EventEngine\CodeGenerator\EventEngineAst\ValueObjectFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
 use EventEngine\InspectioCody\Http\Message\Response;
 use EventEngine\InspectioGraphCody;
-use OpenCodeModeling\CodeAst\Package\Psr4Info;
 use Psr\Http\Message\ResponseInterface;
 
 final class Command extends BaseHook
@@ -36,7 +36,7 @@ final class Command extends BaseHook
     private $apiFilename;
 
     /**
-     * @var InspectioGraphCody\Metadata\NodeJsonMetadataFactory
+     * @var MetadataFactory
      */
     private $metadataFactory;
 
@@ -68,14 +68,7 @@ final class Command extends BaseHook
     private function generateApiDescriptionClass(Context $ctx): string
     {
         $factory = EmptyClassFactory::withDefaultConfig();
-        $factory->config()->getClassInfoList()->addClassInfo(
-            new Psr4Info(
-                $ctx->srcFolder,
-                $ctx->appNamespace,
-                $ctx->filterDirectoryToNamespace,
-                $ctx->filterNamespaceToDirectory
-            )
-        );
+        $factory->config()->setClassInfoList($ctx->classInfoList);
 
         $code = $factory->component()($this->apiFilename);
 
@@ -91,7 +84,7 @@ final class Command extends BaseHook
         return $factory->component()($code);
     }
 
-    private function generateJsonSchema($ctx, InspectioGraphCody\EventSourcingAnalyzer $analyzer): array
+    private function generateJsonSchema(Context $ctx, InspectioGraphCody\EventSourcingAnalyzer $analyzer): array
     {
         $factory = CommandDescriptionFactory::withDefaultConfig();
 
@@ -102,6 +95,17 @@ final class Command extends BaseHook
 
         if (! empty($schemas)) {
             $key = \key($schemas);
+
+            $voFactory = ValueObjectFactory::withDefaultConfig();
+            $voFactory->config()->setClassInfoList($ctx->classInfoList);
+
+            foreach ($analyzer->commandMap() as $command) {
+                $files = $voFactory->componentFile()->generateValueObjectsFromMetadata(
+                    $command,
+                    $ctx->sharedValueObjectFolder
+                );
+                $this->writeFiles($voFactory->objectGenerator(true)->generateFiles($files));
+            }
 
             if (\file_exists($schemas[$key]['filename'])) {
                 throw CodyQuestion::withQuestionResponse(

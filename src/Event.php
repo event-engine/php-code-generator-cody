@@ -15,6 +15,7 @@ use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
 use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
 use EventEngine\CodeGenerator\EventEngineAst\EventDescriptionFactory;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
+use EventEngine\CodeGenerator\EventEngineAst\ValueObjectFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
@@ -36,7 +37,7 @@ final class Event extends BaseHook
     private $apiFilename;
 
     /**
-     * @var InspectioGraphCody\Metadata\NodeJsonMetadataFactory
+     * @var MetadataFactory
      */
     private $metadataFactory;
 
@@ -102,6 +103,17 @@ final class Event extends BaseHook
 
         if (! empty($schemas)) {
             $key = \key($schemas);
+
+            $voFactory = ValueObjectFactory::withDefaultConfig();
+            $voFactory->config()->setClassInfoList($ctx->classInfoList);
+
+            foreach ($analyzer->eventMap() as $event) {
+                $files = $voFactory->componentFile()->generateValueObjectsFromMetadata(
+                    $event,
+                    $ctx->sharedValueObjectFolder
+                );
+                $this->writeFiles($voFactory->objectGenerator(true)->generateFiles($files));
+            }
 
             if (\file_exists($schemas[$key]['filename'])) {
                 throw CodyQuestion::withQuestionResponse(

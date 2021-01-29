@@ -12,6 +12,8 @@ namespace EventEngine\CodeGenerator\Cody;
 
 use EventEngine\CodeGenerator\Cody\Printer\CodeSnifferPrinter;
 use EventEngine\CodeGenerator\Cody\Printer\PrettyPrinter;
+use OpenCodeModeling\CodeAst\Package\ClassInfoList;
+use OpenCodeModeling\CodeAst\Package\Psr4Info;
 use OpenCodeModeling\Filter\FilterFactory;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
@@ -61,6 +63,7 @@ final class Context
 
     public Parser $parser;
     public PrettyPrinter $printer;
+    public ClassInfoList $classInfoList;
 
     public function __construct(
         string $appNamespace,
@@ -86,6 +89,15 @@ final class Context
             function (string $code) {
                 return $code;
             }
+        );
+
+        $this->classInfoList = new ClassInfoList(
+            new Psr4Info(
+                $this->srcFolder,
+                $this->appNamespace,
+                $this->filterDirectoryToNamespace,
+                $this->filterNamespaceToDirectory
+            )
         );
     }
 }

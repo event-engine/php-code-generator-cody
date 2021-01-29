@@ -41,7 +41,7 @@ final class Aggregate extends BaseHook
     private $aggregatePath;
 
     /**
-     * @var InspectioJson\MetadataFactory
+     * @var MetadataFactory
      */
     private $metadataFactory;
 
