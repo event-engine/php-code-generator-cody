@@ -17,7 +17,9 @@ interface PrettyPrinter
 {
     public function prettyPrintFile(Node ...$nodes): string;
 
-    public function applyCodeStyle(string $code);
+    public function applyCodeStyle(string $code): string;
+
+    public function codeStyle(): callable;
 
     public function getPrettyPrinter(): PrettyPrinterAbstract;
 }

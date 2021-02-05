@@ -10,15 +10,17 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody\Metadata;
 
-use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
 use EventEngine\InspectioGraph\Metadata\Metadata;
 use EventEngine\InspectioGraphCody\Node;
 
 final class MetadataFactory
 {
-    private InspectioJson\MetadataFactory $jsonFactory;
+    /**
+     * @var callable
+     */
+    private $jsonFactory;
 
-    public function __construct(InspectioJson\MetadataFactory $jsonFactory)
+    public function __construct(callable $jsonFactory)
     {
         $this->jsonFactory = $jsonFactory;
     }

@@ -40,6 +40,11 @@ final class CodeSnifferPrinter implements PrettyPrinter
         return ($this->codeSniffer)($code);
     }
 
+    public function codeStyle(): callable
+    {
+        return $this->codeSniffer;
+    }
+
     public function getPrettyPrinter(): PrettyPrinterAbstract
     {
         return $this->prettyPrinter;

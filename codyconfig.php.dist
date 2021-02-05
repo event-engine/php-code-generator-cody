@@ -12,6 +12,9 @@ use EventEngine\CodeGenerator\Cody\Aggregate;
 use EventEngine\CodeGenerator\Cody\Command;
 use EventEngine\CodeGenerator\Cody\Context;
 use EventEngine\CodeGenerator\Cody\Event;
+use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredAggregate;
+use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredCommand;
+use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredEvent;
 use EventEngine\InspectioCody\CodyConfig;
 
 /**
@@ -20,15 +23,26 @@ use EventEngine\InspectioCody\CodyConfig;
 $context = new Context(
     'Inspectio\\Board',
     'InspectIO',
-    '/service/src',
-    '/service/src/Domain/Shared/ValueObject'
+    '/service/src'
 );
+
+$aggregateConfig = new PreConfiguredAggregate();
+$aggregateConfig->setBasePath('/service');
+$aggregateConfig->setClassInfoList($context->classInfoList);
+
+$commandConfig = new PreConfiguredCommand();
+$commandConfig->setBasePath('/service');
+$commandConfig->setClassInfoList($context->classInfoList);
+
+$eventConfig = new PreConfiguredEvent();
+$eventConfig->setBasePath('/service');
+$eventConfig->setClassInfoList($context->classInfoList);
 
 return new CodyConfig(
     $context,
     [
-        CodyConfig::HOOK_ON_AGGREGATE => new Aggregate(),
-        CodyConfig::HOOK_ON_COMMAND => new Command(),
-        CodyConfig::HOOK_ON_EVENT => new Event(),
+        CodyConfig::HOOK_ON_AGGREGATE => new Aggregate($aggregateConfig),
+        CodyConfig::HOOK_ON_COMMAND => new Command($commandConfig),
+        CodyConfig::HOOK_ON_EVENT => new Event($eventConfig),
     ]
 );

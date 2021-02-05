@@ -11,53 +11,59 @@ declare(strict_types=1);
 namespace EventEngine\CodeGenerator\Cody;
 
 use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
-use EventEngine\CodeGenerator\EventEngineAst\CommandDescriptionFactory;
-use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
-use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
+use EventEngine\CodeGenerator\EventEngineAst;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
-use EventEngine\CodeGenerator\EventEngineAst\ValueObjectFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
 use EventEngine\InspectioCody\Http\Message\Response;
 use EventEngine\InspectioGraphCody;
+use OpenCodeModeling\CodeAst\Builder\FileCollection;
 use Psr\Http\Message\ResponseInterface;
 
 final class Command extends BaseHook
 {
-    /**
-     * @var string
-     */
-    private $successDetails;
+    private string $successDetails;
+    private string $apiFilename;
 
-    /**
-     * @var string
-     */
-    private $apiFilename;
+    private MetadataFactory $metadataFactory;
 
-    /**
-     * @var MetadataFactory
-     */
-    private $metadataFactory;
+    private EventEngineAst\Config\Command $config;
+    private EventEngineAst\Command $command;
 
-    public function __construct()
+    public function __construct(EventEngineAst\Config\Command $config)
     {
         parent::__construct();
         $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
+        $this->config = $config;
+        $this->command = new EventEngineAst\Command($this->config);
     }
 
     public function __invoke(InspectioGraphCody\Node $command, Context $ctx): ResponseInterface
     {
+        $fileCollection = FileCollection::emptyList();
+
         $this->successDetails = "Checklist\n\n";
         $this->apiFilename = $ctx->srcFolder . '/Domain/Api/Command.php';
 
         $analyzer = new InspectioGraphCody\EventSourcingAnalyzer($command, $ctx->filterConstName, $this->metadataFactory);
 
-        // command description code generation
-        $code = $this->generateApiDescriptionClass($ctx);
-        $code = $this->generateApiDescriptionFileMethod($code);
-        $schemas = $this->generateJsonSchema($ctx, $analyzer);
-        $this->generateApiDescription($command, $ctx, $analyzer, $code, $schemas);
+        $jsonSchemaFile = null;
+
+        $schemas = $this->generateJsonSchema($analyzer, $ctx);
+
+        if (! empty($schemas)) {
+            $key = \key($schemas);
+            $jsonSchemaFile = $schemas[$key]['filename'];
+        }
+
+        $this->command->generateApiDescription($analyzer, $fileCollection, $this->apiFilename, $jsonSchemaFile);
+        $this->command->generateCommandFile($analyzer, $fileCollection);
+
+        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $this->writeFiles($files);
+
+        $this->successDetails .= "✔️ Command description file {$this->apiFilename} updated\n";
 
         return Response::fromCody(
             "Wasn't easy, but command {$command->name()} should work now!",
@@ -65,47 +71,12 @@ final class Command extends BaseHook
         );
     }
 
-    private function generateApiDescriptionClass(Context $ctx): string
+    private function generateJsonSchema(InspectioGraphCody\EventSourcingAnalyzer $analyzer, Context $ctx): array
     {
-        $factory = EmptyClassFactory::withDefaultConfig();
-        $factory->config()->setClassInfoList($ctx->classInfoList);
-
-        $code = $factory->component()($this->apiFilename);
-
-        $this->successDetails .= "✔️ Command description file {$this->apiFilename} updated\n";
-
-        return $code;
-    }
-
-    private function generateApiDescriptionFileMethod(string $code): string
-    {
-        $factory = DescriptionFileMethodFactory::withDefaultConfig();
-
-        return $factory->component()($code);
-    }
-
-    private function generateJsonSchema(Context $ctx, InspectioGraphCody\EventSourcingAnalyzer $analyzer): array
-    {
-        $factory = CommandDescriptionFactory::withDefaultConfig();
-
-        $schemas = $factory->componentMetadataSchema()(
-            $analyzer,
-            $ctx->srcFolder . '/Domain/Api/_schema'
-        );
+        $schemas = $this->command->generateJsonSchemaFiles($analyzer, $ctx->srcFolder . '/Domain/Api/_schema');
 
         if (! empty($schemas)) {
             $key = \key($schemas);
-
-            $voFactory = ValueObjectFactory::withDefaultConfig();
-            $voFactory->config()->setClassInfoList($ctx->classInfoList);
-
-            foreach ($analyzer->commandMap() as $command) {
-                $files = $voFactory->componentFile()->generateValueObjectsFromMetadata(
-                    $command,
-                    $ctx->sharedValueObjectFolder
-                );
-                $this->writeFiles($voFactory->objectGenerator(true)->generateFiles($files));
-            }
 
             if (\file_exists($schemas[$key]['filename'])) {
                 throw CodyQuestion::withQuestionResponse(
@@ -133,27 +104,4 @@ final class Command extends BaseHook
 
         return $schemas;
     }
-
-    private function generateApiDescription(
-        InspectioGraphCody\Node $command,
-        $ctx,
-        InspectioGraphCody\EventSourcingAnalyzer $analyzer,
-        string $code,
-        array $schemas
-    ): string {
-        $factory = CommandDescriptionFactory::withDefaultConfig();
-
-        $updatedCode = $factory->component()($analyzer, $code, $schemas);
-
-        if ($updatedCode !== $code) {
-            $this->writeFile($updatedCode, $this->apiFilename);
-            $this->successDetails .= "✔️ Command description for '{$command->name()}' added\n";
-        } else {
-            $this->successDetails .= "⬤ Skipped: Command description for '{$command->name()}' added\n";
-        }
-
-        return $updatedCode;
-    }
 }
-
-return new Command();

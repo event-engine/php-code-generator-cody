@@ -11,17 +11,14 @@ declare(strict_types=1);
 namespace EventEngine\CodeGenerator\Cody;
 
 use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
-use EventEngine\CodeGenerator\EventEngineAst\DescriptionFileMethodFactory;
-use EventEngine\CodeGenerator\EventEngineAst\EmptyClassFactory;
-use EventEngine\CodeGenerator\EventEngineAst\EventDescriptionFactory;
+use EventEngine\CodeGenerator\EventEngineAst;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
-use EventEngine\CodeGenerator\EventEngineAst\ValueObjectFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
 use EventEngine\InspectioCody\Http\Message\Response;
 use EventEngine\InspectioGraphCody;
-use OpenCodeModeling\CodeAst\Package\Psr4Info;
+use OpenCodeModeling\CodeAst\Builder\FileCollection;
 use Psr\Http\Message\ResponseInterface;
 
 final class Event extends BaseHook
@@ -41,24 +38,42 @@ final class Event extends BaseHook
      */
     private $metadataFactory;
 
-    public function __construct()
+    private EventEngineAst\Config\Event $config;
+    private EventEngineAst\Event $event;
+
+    public function __construct(EventEngineAst\Config\Event $config)
     {
         parent::__construct();
         $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
+        $this->config = $config;
+        $this->event = new EventEngineAst\Event($this->config);
     }
 
     public function __invoke(InspectioGraphCody\Node $event, Context $ctx): ResponseInterface
     {
+        $fileCollection = FileCollection::emptyList();
         $this->successDetails = "Checklist\n\n";
         $this->apiFilename = $ctx->srcFolder . '/Domain/Api/Event.php';
 
         $analyzer = new InspectioGraphCody\EventSourcingAnalyzer($event, $ctx->filterConstName, $this->metadataFactory);
 
+        $jsonSchemaFile = null;
+
+        $schemas = $this->generateJsonSchema($analyzer, $ctx);
+
+        if (! empty($schemas)) {
+            $key = \key($schemas);
+            $jsonSchemaFile = $schemas[$key]['filename'];
+        }
+
         // event description code generation
-        $code = $this->generateApiDescriptionClass($ctx);
-        $code = $this->generateApiDescriptionFileMethod($code);
-        $schemas = $this->generateJsonSchema($ctx, $analyzer);
-        $this->generateApiDescription($event, $ctx, $analyzer, $code, $schemas);
+        $this->event->generateApiDescription($analyzer, $fileCollection, $this->apiFilename, $jsonSchemaFile);
+        $this->event->generateEventFile($analyzer, $fileCollection);
+
+        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $this->writeFiles($files);
+
+        $this->successDetails .= "✔️ Event description file {$this->apiFilename} updated\n";
 
         return Response::fromCody(
             "Wasn't easy, but event {$event->name()} should work now!",
@@ -66,54 +81,12 @@ final class Event extends BaseHook
         );
     }
 
-    private function generateApiDescriptionClass($ctx): string
+    private function generateJsonSchema(InspectioGraphCody\EventSourcingAnalyzer $analyzer, Context $ctx): array
     {
-        $factory = EmptyClassFactory::withDefaultConfig();
-        $factory->config()->getClassInfoList()->addClassInfo(
-            new Psr4Info(
-                $ctx->srcFolder,
-                $ctx->appNamespace,
-                $ctx->filterDirectoryToNamespace,
-                $ctx->filterNamespaceToDirectory
-            )
-        );
-
-        $code = $factory->component()($this->apiFilename);
-
-        $this->successDetails .= "✔️ Event description file {$this->apiFilename} updated\n";
-
-        return $code;
-    }
-
-    private function generateApiDescriptionFileMethod(string $code): string
-    {
-        $factory = DescriptionFileMethodFactory::withDefaultConfig();
-
-        return $factory->component()($code);
-    }
-
-    private function generateJsonSchema($ctx, InspectioGraphCody\EventSourcingAnalyzer $analyzer): array
-    {
-        $factory = EventDescriptionFactory::withDefaultConfig();
-
-        $schemas = $factory->componentMetadataSchema()(
-            $analyzer,
-            $ctx->srcFolder . '/Domain/Api/_schema'
-        );
+        $schemas = $this->event->generateJsonSchemaFiles($analyzer, $ctx->srcFolder . '/Domain/Api/_schema');
 
         if (! empty($schemas)) {
             $key = \key($schemas);
-
-            $voFactory = ValueObjectFactory::withDefaultConfig();
-            $voFactory->config()->setClassInfoList($ctx->classInfoList);
-
-            foreach ($analyzer->eventMap() as $event) {
-                $files = $voFactory->componentFile()->generateValueObjectsFromMetadata(
-                    $event,
-                    $ctx->sharedValueObjectFolder
-                );
-                $this->writeFiles($voFactory->objectGenerator(true)->generateFiles($files));
-            }
 
             if (\file_exists($schemas[$key]['filename'])) {
                 throw CodyQuestion::withQuestionResponse(
@@ -122,9 +95,9 @@ final class Event extends BaseHook
                         function (string $answer) use ($schemas) {
                             if (Question::isAnswerYes($answer)) {
                                 $this->writeFiles($schemas);
-                                $msg = "✔️ Event schema file written\n";
+                                $msg = "✔️ Command schema file written\n";
                             } else {
-                                $msg = "⬤ Skipped: Event schema file written\n";
+                                $msg = "⬤ Skipped: Command schema file written\n";
                             }
 
                             return Response::fromCody(
@@ -141,27 +114,4 @@ final class Event extends BaseHook
 
         return $schemas;
     }
-
-    private function generateApiDescription(
-        InspectioGraphCody\Node $event,
-        $ctx,
-        InspectioGraphCody\EventSourcingAnalyzer $analyzer,
-        string $code,
-        array $schemas
-    ): string {
-        $factory = EventDescriptionFactory::withDefaultConfig();
-
-        $updatedCode = $factory->component()($analyzer, $code, $schemas);
-
-        if ($updatedCode !== $code) {
-            $this->writeFile($updatedCode, $this->apiFilename);
-            $this->successDetails .= "✔️ Event description for '{$event->name()}' added\n";
-        } else {
-            $this->successDetails .= "⬤ Skipped:️ Event description for '{$event->name()}' added\n";
-        }
-
-        return $updatedCode;
-    }
 }
-
-return new Event();
