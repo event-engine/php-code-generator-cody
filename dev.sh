@@ -5,11 +5,6 @@ if [[ ! -f .env ]]; then
     (return 2>/dev/null) && return 1 || exit 1
 fi
 
-if [[ ! -f app.env ]]; then
-    echo "Please copy the file app.env.dist to app.env and configure for your needs! (runs out of the box)" >&2
-    (return 2>/dev/null) && return 1 || exit 1
-fi
-
 if [[ ! -f docker-compose.yml.dist ]]; then
     echo "Please copy the file docker-compose.yml.dist to docker-compose.yml and configure for your needs! (runs out of the box)" >&2
     (return 2>/dev/null) && return 1 || exit 1

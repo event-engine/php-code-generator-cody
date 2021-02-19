@@ -12,7 +12,7 @@ and [Docker Compose](https://docs.docker.com/compose/install/ "Install Docker Co
 ## Usage with Event Engine Skeleton
 
 The following tutorial shows how to connect and use the *Cody* bot with the [Event Engine Skeleton](https://github.com/event-engine/php-engine-skeleton "Event Engine Skeleton on GitHub")
-to generate PHP code from [InspectIO free version](https://event-engine.io/free-inspectio/ "Free version of InspectIO") event map.
+to generate PHP code from [InspectIO](https://event-engine.io/free-inspectio/ "Free version of InspectIO") event map.
 
 > It's important to follow each setup step. It requires a specific folder structure to function correctly!
 
@@ -25,7 +25,14 @@ cd cody-tutorial
 2. Install Event Engine Skeleton via Composer
 
 ```
-docker run --rm -it -v $(pwd):/app prooph/composer:7.4 create-project event-engine/php-engine-skeleton php-engine-tutorial-demo
+docker run --rm -it \
+    -v $(pwd):/app \
+    -u $(id -u ${USER}):$(id -g ${USER}) \
+    prooph/composer:7.4 create-project -v \
+        --stability dev \
+        --remove-vcs \
+        event-engine/php-engine-skeleton \
+        php-engine-tutorial-demo
 ```
 
 3. Setup Event Engine Skeleton
@@ -51,13 +58,12 @@ docker run --rm -it \
     prooph/composer:7.4 create-project -v \
         --stability dev \
         --remove-vcs \
-        event-engine/php-inspectio-cody \
+        event-engine/php-code-generator-cody \
         /app/cody-bot
 
 # Change into bot directory and prepare first start
 cd cody-bot
 cp .env.dist .env # Adjust UID in .env if needed
-cp app.env.dist app.env
 cp docker-compose.yml.dist docker-compose.yml
 cp codyconfig.php.dist codyconfig.php
 ```
@@ -101,7 +107,7 @@ $context = new Context(
 );
 ```
 
-7. Restart Cody
+7. Start Cody
 
 Finally let's start Cody:
 
@@ -111,17 +117,35 @@ Finally let's start Cody:
 
 *Please Note: When adding or changing something in the Cody Bot source code a file watcher takes care of restarting the server.*
 
-8. Create cody tutorial board on InspectIO and test connection
+### InspectIO
 
-You can use [InspectIO free version](https://event-engine.io/free-inspectio/ "Free version of InspectIO") for the tutorial (no login required).
-
-**InspectIO is a modeling tool specifically designed for remote Event Storming. It ships with realtime collaboration 
-features for teams (only available in paid version). The free version is a standalone variant without any backend 
-connection. Your work is stored in local storage and can be exported. It is hosted on Github Pages and has the same 
+**InspectIO is a modeling tool specifically designed for remote Event Storming. It ships with realtime collaboration
+features for teams (only available in paid version). The free version is a standalone variant without any backend
+connection. Your work is stored in local storage and can be exported. It is hosted on Github Pages and has the same
 code generation capabilities as the SaaS version.**
 
-Create a new board called "Cody Tutorial". You'll be redirected to the fresh board. Choose "Cody" from top menu to 
+You can use [InspectIO free version](https://event-engine.io/free-inspectio/ "Free version of InspectIO") and model 
+the [building tutorial](https://event-engine.io/tutorial/intro.html#2-1 "Event Engine Building Tutorial") on the event 
+map (no login required). 
+
+Create a new board called "Cody Tutorial". You'll be redirected to the fresh board. Choose "Cody" from top menu to
 open the **Cody Console**. Just hit ENTER in the console to connect to the default Cody server that we've setup and started
 in the previous step.
 
 Finally type "**/help**" in the console to let Cody explain the basic functionality.
+
+Cody will generate the following boilerplate for you:
+- Event Engine API description for commands, aggregates and domain events
+- Command, aggregate and domain event classes with corresponding value objects based on [metadata](https://github.com/event-engine/inspectio/wiki/Card-Metadata "InspectIO card metadata") (JSON schema)
+- Glue code between command, corresponding aggregate and corresponding domain events
+
+### Cockpit
+
+[Cockpit](https://github.com/event-engine/cockpit) is an admin UI for Event Engine. You can access it on port `4444`: [https://localhost:4444](https://localhost:4444).
+The Event Engine skeleton is preconfigured with the [cockpit-php-backend handler](https://github.com/event-engine/cockpit-php-backend).
+
+*Note: To avoid CORS issues the Nginx configuration of the Cockpit server is modified to also act as a reverse proxy for requests from Cockpit to the backend.*
+
+You can execute the built-in `HealthCheck` query to very that Cockpit can access the Event Engine backend.
+
+![HealthCheck](https://github.com/event-engine/php-engine-skeleton/blob/master/docs/assets/cockpit_health_check.png?raw=true)
