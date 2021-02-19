@@ -47,8 +47,8 @@ cd ..
 # Install Cody Server using composer
 docker run --rm -it \
     -v $(pwd):/app \
-    -u $(id -u -n):$(id -g -n) \
-    prooph/composer:7.4 create-project \
+    -u $(id -u ${USER}):$(id -g ${USER}) \
+    prooph/composer:7.4 create-project -v \
         --stability dev \
         --remove-vcs \
         event-engine/php-inspectio-cody \
