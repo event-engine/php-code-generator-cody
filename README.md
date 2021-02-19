@@ -60,7 +60,6 @@ cp .env.dist .env # Adjust UID in .env if needed
 cp app.env.dist app.env
 cp docker-compose.yml.dist docker-compose.yml
 cp codyconfig.php.dist codyconfig.php
-./dev.sh
 ```
 
 5. Mount Event Engine Skeleton to Cody Bot
@@ -104,14 +103,13 @@ $context = new Context(
 
 7. Restart Cody
 
-Finally let's restart Cody so that our changes take effect:
+Finally let's start Cody:
 
 ```
-docker-compose stop && docker-compose up -d
+./dev.sh
 ```
 
-*Please Note: Restarting the docker container is only needed because we've added a volume mount in docker-compose.yml. 
-When adding or changing something in the Cody Bot source code a file watcher takes care of restarting the server.*
+*Please Note: When adding or changing something in the Cody Bot source code a file watcher takes care of restarting the server.*
 
 8. Create cody tutorial board on InspectIO and test connection
 
