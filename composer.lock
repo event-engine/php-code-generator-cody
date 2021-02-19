@@ -285,16 +285,16 @@
         },
         {
             "name": "event-engine/php-inspectio-graph",
-            "version": "0.3.1",
+            "version": "0.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/event-engine/php-inspectio-graph.git",
-                "reference": "843ed36025ac5be7e0a38447fd1ecbdb465bc23f"
+                "reference": "e9fa46cbc2915af6dce33b36bcb062e218d506b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph/zipball/843ed36025ac5be7e0a38447fd1ecbdb465bc23f",
-                "reference": "843ed36025ac5be7e0a38447fd1ecbdb465bc23f",
+                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph/zipball/e9fa46cbc2915af6dce33b36bcb062e218d506b6",
+                "reference": "e9fa46cbc2915af6dce33b36bcb062e218d506b6",
                 "shasum": ""
             },
             "require": {
@@ -305,7 +305,7 @@
                 "phpstan/phpstan": "^0.12.33",
                 "phpstan/phpstan-strict-rules": "^0.12.4",
                 "phpunit/phpunit": "^9.2.6",
-                "prooph/php-cs-fixer-config": "^0.3",
+                "prooph/php-cs-fixer-config": "^0.4",
                 "roave/security-advisories": "dev-master"
             },
             "type": "library",
@@ -335,7 +335,7 @@
                 "issues": "https://github.com/event-engine/php-inspectio-graph/issues",
                 "source": "https://github.com/event-engine/php-inspectio-graph"
             },
-            "time": "2021-02-19T09:22:23+00:00"
+            "time": "2021-02-19T14:12:25+00:00"
         },
         {
             "name": "event-engine/php-inspectio-graph-cody",
