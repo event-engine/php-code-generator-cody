@@ -8,8 +8,8 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-        os: [ubuntu-latest]
-        experimental: [false]
+        os: [ ubuntu-latest ]
+        experimental: [ false ]
         include:
           - php-version: "8.0"
             os: ubuntu-latest

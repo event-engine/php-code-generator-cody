@@ -24,7 +24,6 @@ final class Context
     public string $appNamespace;
     public string $serviceName;
     public string $srcFolder;
-    public string $sharedValueObjectFolder;
 
     /**
      * @var callable
@@ -68,13 +67,12 @@ final class Context
     public function __construct(
         string $appNamespace,
         string $serviceName,
-        string $srcFolder,
-        string $sharedValueObjectFolder
+        string $srcFolder
     ) {
         $this->appNamespace = $appNamespace;
         $this->serviceName = $serviceName;
         $this->srcFolder = $srcFolder;
-        $this->sharedValueObjectFolder = $sharedValueObjectFolder;
+
         $this->filterClassName = FilterFactory::classNameFilter();
         $this->filterPropertyName = FilterFactory::propertyNameFilter();
         $this->filterMethodName = FilterFactory::methodNameFilter();
@@ -82,6 +80,7 @@ final class Context
         $this->filterConstValue = FilterFactory::constantValueFilter();
         $this->filterDirectoryToNamespace = FilterFactory::directoryToNamespaceFilter();
         $this->filterNamespaceToDirectory = FilterFactory::namespaceToDirectoryFilter();
+
         $this->parser = (new ParserFactory())->create(ParserFactory::ONLY_PHP7);
         $this->printer = new CodeSnifferPrinter(
             new Standard(['shortArraySyntax' => true]),
