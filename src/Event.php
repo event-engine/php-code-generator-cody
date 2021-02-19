@@ -63,7 +63,7 @@ final class Event extends BaseHook
 
         if (! empty($schemas)) {
             $key = \key($schemas);
-            $jsonSchemaFile = $schemas[$key]['filename'];
+            $jsonSchemaFile = ltrim(str_replace($this->config->getBasePath(), '', $schemas[$key]['filename']), '/');
         }
 
         // event description code generation
