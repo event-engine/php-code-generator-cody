@@ -10,15 +10,16 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody;
 
-use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
 use EventEngine\CodeGenerator\EventEngineAst;
+use EventEngine\CodeGenerator\EventEngineAst\Config\Naming;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\HasTypeSet;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata\MetadataFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Http\Message\Response;
-use EventEngine\InspectioGraph\DocumentType;
 use EventEngine\InspectioGraph\VertexType;
 use EventEngine\InspectioGraphCody;
+use OpenCodeModeling\CodeAst\Builder\FileCollection;
 use OpenCodeModeling\JsonSchemaToPhp\Type\TypeSet;
 use Psr\Http\Message\ResponseInterface;
 
@@ -28,31 +29,38 @@ final class Document extends BaseHook
 
     private MetadataFactory $metadataFactory;
 
-    private EventEngineAst\Config\Aggregate $config;
+    private Naming $config;
+    private EventEngineAst\ValueObject $valueObject;
 
-    public function __construct(EventEngineAst\Config\Aggregate $config)
+    public function __construct(Naming $config)
     {
         parent::__construct();
         $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
         $this->config = $config;
+        $this->valueObject = new EventEngineAst\ValueObject($this->config);
     }
 
     public function __invoke(InspectioGraphCody\Node $document, Context $ctx): ResponseInterface
     {
         $this->successDetails = "Checklist\n\n";
 
-        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer($document, $ctx->filterConstName, $this->metadataFactory);
+        $fileCollection = FileCollection::emptyList();
 
-        /** @var DocumentType $documentType */
-        foreach ($analyzer->documentMap() as $documentType) {
-            $fileCollection = $this->config->getObjectGenerator()->generateImmutableRecord(
-                $documentType->name(),
-                $this->config->determineValueObjectPath($documentType, $analyzer),
-                $this->config->determineValueObjectPath($documentType, $analyzer),
-                $this->getMetadata($documentType)
-            );
-            $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
-            $this->writeFiles($files);
+        $this->successDetails = "Checklist\n\n";
+
+        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer(
+            $document,
+            $this->config->config()->getFilterConstName(),
+            $this->metadataFactory
+        );
+
+        $this->valueObject->generate($analyzer, $fileCollection);
+
+        $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+
+        foreach ($files as $file) {
+            $this->successDetails .= "✔️ File {$file['filename']} updated\n";
+            $this->writeFile($file['code'], $file['filename']);
         }
 
         return Response::fromCody(

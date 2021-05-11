@@ -10,9 +10,10 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody;
 
-use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
 use EventEngine\CodeGenerator\EventEngineAst;
+use EventEngine\CodeGenerator\EventEngineAst\Config\Naming;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata\MetadataFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
@@ -38,10 +39,10 @@ final class Event extends BaseHook
      */
     private $metadataFactory;
 
-    private EventEngineAst\Config\Event $config;
+    private Naming $config;
     private EventEngineAst\Event $event;
 
-    public function __construct(EventEngineAst\Config\Event $config)
+    public function __construct(Naming $config)
     {
         parent::__construct();
         $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
@@ -55,7 +56,11 @@ final class Event extends BaseHook
         $this->successDetails = "Checklist\n\n";
         $this->apiFilename = $ctx->srcFolder . '/Domain/Api/Event.php';
 
-        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer($event, $ctx->filterConstName, $this->metadataFactory);
+        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer(
+            $event,
+            $this->config->config()->getFilterConstName(),
+            $this->metadataFactory
+        );
 
         $jsonSchemaFile = null;
 
@@ -63,14 +68,14 @@ final class Event extends BaseHook
 
         if (! empty($schemas)) {
             $key = \key($schemas);
-            $jsonSchemaFile = ltrim(str_replace($this->config->getBasePath(), '', $schemas[$key]['filename']), '/');
+            $jsonSchemaFile = \ltrim(\str_replace($this->config->config()->getBasePath(), '', $schemas[$key]['filename']), '/');
         }
 
         // event description code generation
         $this->event->generateApiDescription($analyzer, $fileCollection, $this->apiFilename, $jsonSchemaFile);
         $this->event->generateEventFile($analyzer, $fileCollection);
 
-        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
         $this->writeFiles($files);
 
         $this->successDetails .= "✔️ Event description file {$this->apiFilename} updated\n";

@@ -13,8 +13,6 @@ namespace EventEngine\CodeGenerator\Cody;
 use EventEngine\CodeGenerator\Cody\Printer\CodeSnifferPrinter;
 use EventEngine\CodeGenerator\Cody\Printer\PrettyPrinter;
 use OpenCodeModeling\CodeAst\Package\ClassInfoList;
-use OpenCodeModeling\CodeAst\Package\Psr4Info;
-use OpenCodeModeling\Filter\FilterFactory;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
@@ -65,21 +63,11 @@ final class Context
     public ClassInfoList $classInfoList;
 
     public function __construct(
-        string $appNamespace,
         string $serviceName,
         string $srcFolder
     ) {
-        $this->appNamespace = $appNamespace;
         $this->serviceName = $serviceName;
         $this->srcFolder = $srcFolder;
-
-        $this->filterClassName = FilterFactory::classNameFilter();
-        $this->filterPropertyName = FilterFactory::propertyNameFilter();
-        $this->filterMethodName = FilterFactory::methodNameFilter();
-        $this->filterConstName = FilterFactory::constantNameFilter();
-        $this->filterConstValue = FilterFactory::constantValueFilter();
-        $this->filterDirectoryToNamespace = FilterFactory::directoryToNamespaceFilter();
-        $this->filterNamespaceToDirectory = FilterFactory::namespaceToDirectoryFilter();
 
         $this->parser = (new ParserFactory())->create(ParserFactory::ONLY_PHP7);
         $this->printer = new CodeSnifferPrinter(
@@ -88,15 +76,6 @@ final class Context
             function (string $code) {
                 return $code;
             }
-        );
-
-        $this->classInfoList = new ClassInfoList(
-            new Psr4Info(
-                $this->srcFolder,
-                $this->appNamespace,
-                $this->filterDirectoryToNamespace,
-                $this->filterNamespaceToDirectory
-            )
         );
     }
 }

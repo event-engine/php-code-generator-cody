@@ -10,9 +10,10 @@ declare(strict_types=1);
 
 namespace EventEngine\CodeGenerator\Cody;
 
-use EventEngine\CodeGenerator\Cody\Metadata\MetadataFactory;
 use EventEngine\CodeGenerator\EventEngineAst;
+use EventEngine\CodeGenerator\EventEngineAst\Config\Naming;
 use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata\MetadataFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Http\Message\Response;
 use EventEngine\InspectioGraphCody;
@@ -46,17 +47,17 @@ final class Aggregate extends BaseHook
      */
     private $metadataFactory;
 
-    private EventEngineAst\Config\Aggregate $config;
+    private Naming $config;
     private EventEngineAst\Aggregate $aggregate;
     private EventEngineAst\AggregateStateImmutableRecordOverride $immutableRecordOverride;
 
-    public function __construct(EventEngineAst\Config\Aggregate $config)
+    public function __construct(Naming $config)
     {
         parent::__construct();
         $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
         $this->config = $config;
         $this->aggregate = new EventEngineAst\Aggregate($this->config);
-        $this->immutableRecordOverride = new EventEngineAst\AggregateStateImmutableRecordOverride($this->config->getParser());
+        $this->immutableRecordOverride = new EventEngineAst\AggregateStateImmutableRecordOverride($this->config);
     }
 
     public function __invoke(InspectioGraphCody\Node $aggregate, Context $ctx): ResponseInterface
@@ -67,11 +68,15 @@ final class Aggregate extends BaseHook
         $this->apiEventFilename = $ctx->srcFolder . '/Domain/Api/Event.php';
         $this->aggregatePath = $ctx->srcFolder . '/Domain/Model';
 
-        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer($aggregate, $ctx->filterConstName, $this->metadataFactory);
+        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer(
+            $aggregate,
+            $this->config->config()->getFilterConstName(),
+            $this->metadataFactory
+        );
 
         // description code generation
         $this->aggregate->generateApiDescription($analyzer, $fileCollection, $this->apiAggregateFilename);
-        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
         $this->writeFiles($files);
 
         $this->successDetails .= "✔️ Aggregate description file {$this->apiAggregateFilename} updated\n";
@@ -83,7 +88,7 @@ final class Aggregate extends BaseHook
         // pass through arbitrary data, needed for testing if you don't use metadata
         // $this->immutableRecordOverride->generateImmutableRecordOverride($fileCollection);
 
-        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
         $this->writeFiles($files);
 
         $this->successDetails .= "✔️ Aggregate state file updated\n";
@@ -92,7 +97,7 @@ final class Aggregate extends BaseHook
         $fileCollection = FileCollection::emptyList();
         $this->aggregate->generateAggregateFile($analyzer, $fileCollection, $this->apiEventFilename);
 
-        $files = $this->config->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
+        $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
         $this->writeFiles($files);
 
         $this->successDetails .= "✔️ Aggregate behaviour file updated\n";

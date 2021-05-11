@@ -11,38 +11,40 @@ declare(strict_types=1);
 use EventEngine\CodeGenerator\Cody\Aggregate;
 use EventEngine\CodeGenerator\Cody\Command;
 use EventEngine\CodeGenerator\Cody\Context;
+use EventEngine\CodeGenerator\Cody\Document;
 use EventEngine\CodeGenerator\Cody\Event;
-use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredAggregate;
-use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredCommand;
-use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredEvent;
+use EventEngine\CodeGenerator\EventEngineAst\Config\EventEngineConfig;
+use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredNaming;
 use EventEngine\InspectioCody\CodyConfig;
 
 /**
  * business application is mounted to /service in docker-compose.yml
  */
+$contextName = 'YOUR_CONTEXT_NAME'; // e.g. Acme
+$basePath = '/service';
+
+/**
+ * DON'T CHANGE ANY LINES FROM HERE
+ */
 $context = new Context(
-    'Inspectio\\Board',
-    'InspectIO',
-    '/service/src'
+    $contextName,
+    $basePath . '/src'
 );
 
-$aggregateConfig = new PreConfiguredAggregate();
-$aggregateConfig->setBasePath('/service');
-$aggregateConfig->setClassInfoList($context->classInfoList);
+$composerFile = $basePath . '/composer.json';
 
-$commandConfig = new PreConfiguredCommand();
-$commandConfig->setBasePath('/service');
-$commandConfig->setClassInfoList($context->classInfoList);
+$config = new EventEngineConfig();
+$config->setBasePath($basePath);
+$config->addComposerInfo($composerFile);
 
-$eventConfig = new PreConfiguredEvent();
-$eventConfig->setBasePath('/service');
-$eventConfig->setClassInfoList($context->classInfoList);
+$namingConfig = new PreConfiguredNaming($config);
 
 return new CodyConfig(
     $context,
     [
-        CodyConfig::HOOK_ON_AGGREGATE => new Aggregate($aggregateConfig),
-        CodyConfig::HOOK_ON_COMMAND => new Command($commandConfig),
-        CodyConfig::HOOK_ON_EVENT => new Event($eventConfig),
+        CodyConfig::HOOK_ON_AGGREGATE => new Aggregate($namingConfig),
+        CodyConfig::HOOK_ON_COMMAND => new Command($namingConfig),
+        CodyConfig::HOOK_ON_EVENT => new Event($namingConfig),
+        CodyConfig::HOOK_ON_DOCUMENT => new Document($namingConfig),
     ]
 );
