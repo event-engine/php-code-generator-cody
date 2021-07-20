@@ -28,7 +28,7 @@ cd cody-tutorial
 docker run --rm -it \
     -v $(pwd):/app \
     -u $(id -u ${USER}):$(id -g ${USER}) \
-    prooph/composer:7.4 create-project -v \
+    prooph/composer:8.0 create-project -v \
         --stability dev \
         --remove-vcs \
         event-engine/php-engine-skeleton \
@@ -55,7 +55,7 @@ cd ..
 docker run --rm -it \
     -v $(pwd):/app \
     -u $(id -u ${USER}):$(id -g ${USER}) \
-    prooph/composer:7.4 create-project -v \
+    prooph/composer:8.0 create-project -v \
         --stability dev \
         --remove-vcs \
         event-engine/php-code-generator-cody \
@@ -81,7 +81,7 @@ services:
 
   # The actual client application
   iio-cody:
-    image: prooph/php:7.4-cli
+    image: prooph/php:8.0-cli
     volumes:
       - .:/app
       # mount your business application folder to /service

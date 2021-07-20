@@ -16,20 +16,20 @@ use EventEngine\CodeGenerator\Cody\Event;
 use EventEngine\CodeGenerator\EventEngineAst\Config\EventEngineConfig;
 use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredNaming;
 use EventEngine\InspectioCody\CodyConfig;
+use EventEngine\InspectioGraphCody\EventSourcingAnalyzer;
+use EventEngine\InspectioGraphCody\EventSourcingGraph;
+use EventEngine\CodeGenerator\EventEngineAst\Metadata;
 
 /**
  * business application is mounted to /service in docker-compose.yml
  */
 $contextName = 'YOUR_CONTEXT_NAME'; // e.g. Acme
 $basePath = '/service';
+$codingStandardFile = $basePath . DIRECTORY_SEPARATOR . '.phpcs.xml.dist';
 
 /**
  * DON'T CHANGE ANY LINES FROM HERE
  */
-$context = new Context(
-    $contextName,
-    $basePath . '/src'
-);
 
 $composerFile = $basePath . '/composer.json';
 
@@ -38,6 +38,16 @@ $config->setBasePath($basePath);
 $config->addComposerInfo($composerFile);
 
 $namingConfig = new PreConfiguredNaming($config);
+$namingConfig->setDefaultContextName($contextName);
+
+$analyzer = new EventSourcingAnalyzer(
+    new EventSourcingGraph(
+        $config->getFilterConstName(),
+        new Metadata\MetadataFactory(new Metadata\InspectioJson\MetadataFactory())
+    )
+);
+
+$context = new Context($analyzer);
 
 return new CodyConfig(
     $context,

@@ -12,62 +12,21 @@ namespace EventEngine\CodeGenerator\Cody;
 
 use EventEngine\CodeGenerator\Cody\Printer\CodeSnifferPrinter;
 use EventEngine\CodeGenerator\Cody\Printer\PrettyPrinter;
-use OpenCodeModeling\CodeAst\Package\ClassInfoList;
+use EventEngine\CodeGenerator\Cody\Printer\Standard;
+use EventEngine\InspectioGraphCody\EventSourcingAnalyzer;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
-use PhpParser\PrettyPrinter\Standard;
 
 final class Context
 {
-    public string $appNamespace;
-    public string $serviceName;
-    public string $srcFolder;
-
-    /**
-     * @var callable
-     */
-    public $filterClassName;
-
-    /**
-     * @var callable
-     */
-    public $filterPropertyName;
-
-    /**
-     * @var callable
-     */
-    public $filterMethodName;
-
-    /**
-     * @var callable
-     */
-    public $filterConstName;
-
-    /**
-     * @var callable
-     */
-    public $filterConstValue;
-
-    /**
-     * @var callable
-     */
-    public $filterDirectoryToNamespace;
-
-    /**
-     * @var callable
-     */
-    public $filterNamespaceToDirectory;
+    public EventSourcingAnalyzer $analyzer;
 
     public Parser $parser;
     public PrettyPrinter $printer;
-    public ClassInfoList $classInfoList;
 
-    public function __construct(
-        string $serviceName,
-        string $srcFolder
-    ) {
-        $this->serviceName = $serviceName;
-        $this->srcFolder = $srcFolder;
+    public function __construct(EventSourcingAnalyzer $analyzer)
+    {
+        $this->analyzer = $analyzer;
 
         $this->parser = (new ParserFactory())->create(ParserFactory::ONLY_PHP7);
         $this->printer = new CodeSnifferPrinter(
@@ -77,5 +36,30 @@ final class Context
                 return $code;
             }
         );
+    }
+
+    public function analyzerStats(float $time): string
+    {
+        $mem = \round(\memory_get_usage() / 1048576, 2) . ' MB';
+        $memPeak = \round(\memory_get_peak_usage() / 1048576, 2) . ' MB';
+
+        return "\n⌛ Generated in $time s, memory usage $mem / $memPeak\n" .
+            "Commands: {$this->analyzer->commandMap()->count()} | " .
+            "Aggregates: {$this->analyzer->aggregateMap()->count()} | " .
+            "Events: {$this->analyzer->eventMap()->count()} | " .
+            "Documents: {$this->analyzer->documentMap()->count()}\n" .
+            "Policies: {$this->analyzer->policyMap()->count()} | " .
+            "External Systems: {$this->analyzer->externalSystemMap()->count()} | " .
+            "UIs/APIs: {$this->analyzer->uiMap()->count()}\n" .
+            "Features: {$this->analyzer->featureMap()->count()} | " .
+            "Bounded Contexts: {$this->analyzer->boundedContextMap()->count()}\n" .
+            "Total: {$this->analyzer->graph()->count()}";
+    }
+
+    public function microtimeFloat(): float
+    {
+        [$usec, $sec] = \explode(' ', \microtime());
+
+        return (float) $usec + (float) $sec;
     }
 }

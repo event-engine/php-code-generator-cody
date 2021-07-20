@@ -12,12 +12,11 @@ namespace EventEngine\CodeGenerator\Cody;
 
 use EventEngine\CodeGenerator\EventEngineAst;
 use EventEngine\CodeGenerator\EventEngineAst\Config\Naming;
-use EventEngine\CodeGenerator\EventEngineAst\Metadata\InspectioJson;
-use EventEngine\CodeGenerator\EventEngineAst\Metadata\MetadataFactory;
 use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
 use EventEngine\InspectioCody\Http\Message\Response;
+use EventEngine\InspectioGraph\VertexConnection;
 use EventEngine\InspectioGraphCody;
 use OpenCodeModeling\CodeAst\Builder\FileCollection;
 use Psr\Http\Message\ResponseInterface;
@@ -25,9 +24,6 @@ use Psr\Http\Message\ResponseInterface;
 final class Command extends BaseHook
 {
     private string $successDetails;
-    private string $apiFilename;
-
-    private MetadataFactory $metadataFactory;
 
     private Naming $config;
     private EventEngineAst\Command $command;
@@ -35,40 +31,39 @@ final class Command extends BaseHook
     public function __construct(Naming $config)
     {
         parent::__construct();
-        $this->metadataFactory = new MetadataFactory(new InspectioJson\MetadataFactory());
         $this->config = $config;
         $this->command = new EventEngineAst\Command($this->config);
     }
 
     public function __invoke(InspectioGraphCody\Node $command, Context $ctx): ResponseInterface
     {
+        $timeStart = $ctx->microtimeFloat();
+
         $fileCollection = FileCollection::emptyList();
-
         $this->successDetails = "Checklist\n\n";
-        $this->apiFilename = $ctx->srcFolder . '/Domain/Api/Command.php';
 
-        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer(
-            $command,
-            $this->config->config()->getFilterConstName(),
-            $this->metadataFactory
-        );
+        $connection = $ctx->analyzer->analyse($command);
 
         $jsonSchemaFile = null;
 
-        $schemas = $this->generateJsonSchema($analyzer, $ctx);
+        $schemas = $this->generateJsonSchema($connection, $ctx->analyzer, $ctx);
 
         if (! empty($schemas)) {
             $key = \key($schemas);
             $jsonSchemaFile = \ltrim(\str_replace($this->config->config()->getBasePath(), '', $schemas[$key]['filename']), '/');
         }
 
-        $this->command->generateApiDescription($analyzer, $fileCollection, $this->apiFilename, $jsonSchemaFile);
-        $this->command->generateCommandFile($analyzer, $fileCollection);
+        $this->command->generateApiDescription($connection, $ctx->analyzer, $fileCollection, $jsonSchemaFile);
+        $this->command->generateCommandFile($connection, $ctx->analyzer, $fileCollection);
 
         $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
-        $this->writeFiles($files);
 
-        $this->successDetails .= "✔️ Command description file {$this->apiFilename} updated\n";
+        foreach ($files as $file) {
+            $this->successDetails .= "✔️ File {$file['filename']} updated\n";
+            $this->writeFile($file['code'], $file['filename']);
+        }
+
+        $this->successDetails .= $ctx->analyzerStats($ctx->microtimeFloat() - $timeStart);
 
         return Response::fromCody(
             "Wasn't easy, but command {$command->name()} should work now!",
@@ -76,9 +71,16 @@ final class Command extends BaseHook
         );
     }
 
-    private function generateJsonSchema(InspectioGraphCody\EventSourcingAnalyzer $analyzer, Context $ctx): array
-    {
-        $schemas = $this->command->generateJsonSchemaFiles($analyzer, $ctx->srcFolder . '/Domain/Api/_schema');
+    private function generateJsonSchema(
+        VertexConnection $connection,
+        InspectioGraphCody\EventSourcingAnalyzer $analyzer,
+        Context $ctx
+    ): array {
+        $schemas = $this->command->generateJsonSchemaFiles(
+            $connection,
+            $analyzer,
+            $this->config->config()->determineDomainRoot() . '/Api/_schema'
+        );
 
         if (! empty($schemas)) {
             $key = \key($schemas);

@@ -4,7 +4,7 @@ services:
 
   # The actual client application
   iio-cody:
-    image: prooph/php:7.4-cli
+    image: prooph/php:8.0-cli
     volumes:
       - .:/app
       # mount your business application folder to /service

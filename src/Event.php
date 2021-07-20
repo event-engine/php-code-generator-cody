@@ -18,6 +18,7 @@ use EventEngine\InspectioCody\Board\BaseHook;
 use EventEngine\InspectioCody\Board\Exception\CodyQuestion;
 use EventEngine\InspectioCody\General\Question;
 use EventEngine\InspectioCody\Http\Message\Response;
+use EventEngine\InspectioGraph\VertexConnection;
 use EventEngine\InspectioGraphCody;
 use OpenCodeModeling\CodeAst\Builder\FileCollection;
 use Psr\Http\Message\ResponseInterface;
@@ -52,19 +53,16 @@ final class Event extends BaseHook
 
     public function __invoke(InspectioGraphCody\Node $event, Context $ctx): ResponseInterface
     {
+        $timeStart = $ctx->microtimeFloat();
+
         $fileCollection = FileCollection::emptyList();
         $this->successDetails = "Checklist\n\n";
-        $this->apiFilename = $ctx->srcFolder . '/Domain/Api/Event.php';
 
-        $analyzer = new InspectioGraphCody\EventSourcingAnalyzer(
-            $event,
-            $this->config->config()->getFilterConstName(),
-            $this->metadataFactory
-        );
+        $connection = $ctx->analyzer->analyse($event);
 
         $jsonSchemaFile = null;
 
-        $schemas = $this->generateJsonSchema($analyzer, $ctx);
+        $schemas = $this->generateJsonSchema($connection, $ctx->analyzer, $ctx);
 
         if (! empty($schemas)) {
             $key = \key($schemas);
@@ -72,13 +70,17 @@ final class Event extends BaseHook
         }
 
         // event description code generation
-        $this->event->generateApiDescription($analyzer, $fileCollection, $this->apiFilename, $jsonSchemaFile);
-        $this->event->generateEventFile($analyzer, $fileCollection);
+        $this->event->generateApiDescription($connection, $ctx->analyzer, $fileCollection, $jsonSchemaFile);
+        $this->event->generateEventFile($connection, $ctx->analyzer, $fileCollection);
 
         $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
-        $this->writeFiles($files);
 
-        $this->successDetails .= "✔️ Event description file {$this->apiFilename} updated\n";
+        foreach ($files as $file) {
+            $this->successDetails .= "✔️ File {$file['filename']} updated\n";
+            $this->writeFile($file['code'], $file['filename']);
+        }
+
+        $this->successDetails .= $ctx->analyzerStats($ctx->microtimeFloat() - $timeStart);
 
         return Response::fromCody(
             "Wasn't easy, but event {$event->name()} should work now!",
@@ -86,9 +88,16 @@ final class Event extends BaseHook
         );
     }
 
-    private function generateJsonSchema(InspectioGraphCody\EventSourcingAnalyzer $analyzer, Context $ctx): array
-    {
-        $schemas = $this->event->generateJsonSchemaFiles($analyzer, $ctx->srcFolder . '/Domain/Api/_schema');
+    private function generateJsonSchema(
+        VertexConnection $connection,
+        InspectioGraphCody\EventSourcingAnalyzer $analyzer,
+        Context $ctx
+    ): array {
+        $schemas = $this->event->generateJsonSchemaFiles(
+            $connection,
+            $ctx->analyzer,
+            $this->config->config()->determineDomainRoot() . '/Api/_schema'
+        );
 
         if (! empty($schemas)) {
             $key = \key($schemas);

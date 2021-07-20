@@ -41,20 +41,17 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "ext-json": "*",
-        "event-engine/php-code-generator-event-engine-ast": "dev-feature/add-missing-types",
-        "event-engine/php-inspectio-graph-cody": "dev-feature/add-missing-types as dev-master",
+        "event-engine/php-code-generator-event-engine-ast": "dev-feature/simplify-connections",
+        "event-engine/php-inspectio-graph-cody": "dev-feature/simplify-connections as dev-master",
         "event-engine/php-inspectio-cody": "dev-master",
         "fig/http-message-util": "^1.1",
         "laminas/laminas-filter": "^2.9",
         "nikic/php-parser": "^v4.10.3",
-        "open-code-modeling/json-schema-to-php-ast": "^0.5.3",
-        "open-code-modeling/php-code-ast": "^0.12.2",
         "open-code-modeling/php-code-generator-transformator": "^0.1.0",
         "open-code-modeling/php-filter": "^0.1.3",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "league/flysystem": "^2.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/phpstan": "^0.12.33",
         "phpstan/phpstan-strict-rules": "^0.12.4",
