@@ -159,12 +159,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/event-engine/php-code-generator-event-engine-ast.git",
-                "reference": "f1ef0c9eb221023596e1983b2e9ead4675308f3c"
+                "reference": "e140cf632d3f280be3c3c9b6e79a3dc84bca3c4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/event-engine/php-code-generator-event-engine-ast/zipball/f1ef0c9eb221023596e1983b2e9ead4675308f3c",
-                "reference": "f1ef0c9eb221023596e1983b2e9ead4675308f3c",
+                "url": "https://api.github.com/repos/event-engine/php-code-generator-event-engine-ast/zipball/e140cf632d3f280be3c3c9b6e79a3dc84bca3c4b",
+                "reference": "e140cf632d3f280be3c3c9b6e79a3dc84bca3c4b",
                 "shasum": ""
             },
             "require": {
@@ -224,7 +224,7 @@
                 "issues": "https://github.com/event-engine/php-code-generator-event-engine-ast/issues",
                 "source": "https://github.com/event-engine/php-code-generator-event-engine-ast"
             },
-            "time": "2021-07-20T11:18:44+00:00"
+            "time": "2021-07-21T06:54:33+00:00"
         },
         {
             "name": "event-engine/php-inspectio-cody",
@@ -296,12 +296,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/event-engine/php-inspectio-graph.git",
-                "reference": "ef2c0357ac932b1ffbe2b7064f523bed271cf65f"
+                "reference": "f805a44f9205c634c6bab48dab429e1846ec1d1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph/zipball/ef2c0357ac932b1ffbe2b7064f523bed271cf65f",
-                "reference": "ef2c0357ac932b1ffbe2b7064f523bed271cf65f",
+                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph/zipball/f805a44f9205c634c6bab48dab429e1846ec1d1c",
+                "reference": "f805a44f9205c634c6bab48dab429e1846ec1d1c",
                 "shasum": ""
             },
             "require": {
@@ -342,7 +342,7 @@
                 "issues": "https://github.com/event-engine/php-inspectio-graph/issues",
                 "source": "https://github.com/event-engine/php-inspectio-graph"
             },
-            "time": "2021-07-09T12:55:43+00:00"
+            "time": "2021-07-21T06:49:27+00:00"
         },
         {
             "name": "event-engine/php-inspectio-graph-cody",
@@ -350,12 +350,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/event-engine/php-inspectio-graph-cody.git",
-                "reference": "9628488755057b9dae95c88cba91867602bc4266"
+                "reference": "e7f6c0e8d9cc5a80243c9b8757ce8023d6b980cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph-cody/zipball/9628488755057b9dae95c88cba91867602bc4266",
-                "reference": "9628488755057b9dae95c88cba91867602bc4266",
+                "url": "https://api.github.com/repos/event-engine/php-inspectio-graph-cody/zipball/e7f6c0e8d9cc5a80243c9b8757ce8023d6b980cf",
+                "reference": "e7f6c0e8d9cc5a80243c9b8757ce8023d6b980cf",
                 "shasum": ""
             },
             "require": {
@@ -406,7 +406,7 @@
                 "issues": "https://github.com/event-engine/php-inspectio-graph-cody/issues",
                 "source": "https://github.com/event-engine/php-inspectio-graph-cody"
             },
-            "time": "2021-07-09T12:57:15+00:00"
+            "time": "2021-07-21T06:52:20+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -2053,23 +2053,23 @@
         },
         {
             "name": "seregazhuk/php-watcher",
-            "version": "dev-master",
+            "version": "v0.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/seregazhuk/php-watcher.git",
-                "reference": "765fefd2496b99904d9fc5e748556ce4641456cf"
+                "reference": "b1ad89f5df17c50118731cf121469cefa13ff553"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/seregazhuk/php-watcher/zipball/765fefd2496b99904d9fc5e748556ce4641456cf",
-                "reference": "765fefd2496b99904d9fc5e748556ce4641456cf",
+                "url": "https://api.github.com/repos/seregazhuk/php-watcher/zipball/b1ad89f5df17c50118731cf121469cefa13ff553",
+                "reference": "b1ad89f5df17c50118731cf121469cefa13ff553",
                 "shasum": ""
             },
             "require": {
                 "alecrabbit/php-cli-snake": "^0.5",
                 "ext-json": "*",
                 "ext-pcntl": "*",
-                "php": "^7.4|^8.0",
+                "php": "^7.2",
                 "react/child-process": "^0.6.1",
                 "react/event-loop": "^1.1",
                 "react/stream": "^1.0.0",
@@ -2081,10 +2081,8 @@
             "require-dev": {
                 "clue/block-react": "^1.3",
                 "phpunit/phpunit": "^8.0",
-                "symfony/process": "^4.3",
-                "vimeo/psalm": "^3.8"
+                "symfony/process": "^4.3"
             },
-            "default-branch": true,
             "bin": [
                 "php-watcher"
             ],
@@ -2123,7 +2121,7 @@
                 "issues": "https://github.com/seregazhuk/php-watcher/issues",
                 "source": "https://github.com/seregazhuk/php-watcher/tree/master"
             },
-            "time": "2021-02-22T19:41:51+00:00"
+            "time": "2019-12-07T08:45:28+00:00"
         },
         {
             "name": "symfony/console",
@@ -4696,20 +4694,20 @@
         },
         {
             "name": "psr/cache",
-            "version": "3.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/cache.git",
-                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf"
+                "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/cache/zipball/aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
-                "reference": "aa5030cfa5405eccfdcb1083ce040c2cb8d253bf",
+                "url": "https://api.github.com/repos/php-fig/cache/zipball/d11b50ad223250cf17b86e38383413f5a6764bf8",
+                "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.0.0"
+                "php": ">=5.3.0"
             },
             "type": "library",
             "extra": {
@@ -4729,7 +4727,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
+                    "homepage": "http://www.php-fig.org/"
                 }
             ],
             "description": "Common interface for caching libraries",
@@ -4739,9 +4737,9 @@
                 "psr-6"
             ],
             "support": {
-                "source": "https://github.com/php-fig/cache/tree/3.0.0"
+                "source": "https://github.com/php-fig/cache/tree/master"
             },
-            "time": "2021-02-03T23:26:27+00:00"
+            "time": "2016-08-06T20:24:11+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -4799,12 +4797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "736d41298189b79074e555d056bfe040b4970f47"
+                "reference": "062365f16d85b8585d665a913f3d3874db1860b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/736d41298189b79074e555d056bfe040b4970f47",
-                "reference": "736d41298189b79074e555d056bfe040b4970f47",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/062365f16d85b8585d665a913f3d3874db1860b4",
+                "reference": "062365f16d85b8585d665a913f3d3874db1860b4",
                 "shasum": ""
             },
             "conflict": {
@@ -5079,9 +5077,9 @@
                 "tribalsystems/zenario": "<8.8.53370",
                 "truckersmp/phpwhois": "<=4.3.1",
                 "twig/twig": "<1.38|>=2,<2.7",
-                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.38|>=9,<9.5.25|>=10,<10.4.14|>=11,<11.1.1",
+                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.38|>=9,<9.5.28|>=10,<10.4.18|>=11,<11.3.1",
                 "typo3/cms-backend": ">=7,<=7.6.50|>=8,<=8.7.39|>=9,<=9.5.24|>=10,<=10.4.13|>=11,<=11.1",
-                "typo3/cms-core": ">=6.2,<=6.2.56|>=7,<=7.6.50|>=8,<=8.7.39|>=9,<9.5.25|>=10,<10.4.14|>=11,<11.1.1",
+                "typo3/cms-core": ">=6.2,<=6.2.56|>=7,<=7.6.50|>=8,<=8.7.39|>=9,<9.5.28|>=10,<10.4.18|>=11,<11.3.1",
                 "typo3/cms-form": ">=8,<=8.7.39|>=9,<=9.5.24|>=10,<=10.4.13|>=11,<=11.1",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.12|>=3.1,<3.1.10|>=3.2,<3.2.13|>=3.3,<3.3.13|>=4,<4.0.6",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4|>=2.3,<2.3.99|>=3,<3.0.20|>=3.1,<3.1.18|>=3.2,<3.2.14|>=3.3,<3.3.23|>=4,<4.0.17|>=4.1,<4.1.16|>=4.2,<4.2.12|>=4.3,<4.3.3",
@@ -5168,7 +5166,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-07-19T22:02:46+00:00"
+            "time": "2021-07-20T12:03:36+00:00"
         },
         {
             "name": "sebastian/cli-parser",

@@ -9,10 +9,12 @@
 declare(strict_types=1);
 
 use EventEngine\CodeGenerator\Cody\Aggregate;
+use EventEngine\CodeGenerator\Cody\BoundedContext;
 use EventEngine\CodeGenerator\Cody\Command;
 use EventEngine\CodeGenerator\Cody\Context;
 use EventEngine\CodeGenerator\Cody\Document;
 use EventEngine\CodeGenerator\Cody\Event;
+use EventEngine\CodeGenerator\Cody\Feature;
 use EventEngine\CodeGenerator\EventEngineAst\Config\EventEngineConfig;
 use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredNaming;
 use EventEngine\InspectioCody\CodyConfig;
@@ -56,5 +58,7 @@ return new CodyConfig(
         CodyConfig::HOOK_ON_COMMAND => new Command($namingConfig),
         CodyConfig::HOOK_ON_EVENT => new Event($namingConfig),
         CodyConfig::HOOK_ON_DOCUMENT => new Document($namingConfig),
+        CodyConfig::HOOK_ON_FEATURE => new Feature($namingConfig),
+        CodyConfig::HOOK_ON_BOUNDED_CONTEXT => new BoundedContext($namingConfig),
     ]
 );
