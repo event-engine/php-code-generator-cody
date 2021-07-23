@@ -15,6 +15,7 @@ use EventEngine\CodeGenerator\Cody\Context;
 use EventEngine\CodeGenerator\Cody\Document;
 use EventEngine\CodeGenerator\Cody\Event;
 use EventEngine\CodeGenerator\Cody\Feature;
+use EventEngine\CodeGenerator\Cody\Sync;
 use EventEngine\CodeGenerator\EventEngineAst\Config\EventEngineConfig;
 use EventEngine\CodeGenerator\EventEngineAst\Config\PreConfiguredNaming;
 use EventEngine\InspectioCody\CodyConfig;
@@ -60,5 +61,7 @@ return new CodyConfig(
         CodyConfig::HOOK_ON_DOCUMENT => new Document($namingConfig),
         CodyConfig::HOOK_ON_FEATURE => new Feature($namingConfig),
         CodyConfig::HOOK_ON_BOUNDED_CONTEXT => new BoundedContext($namingConfig),
-    ]
+        CodyConfig::HOOK_ON_SYNC => new Sync(),
+    ],
+    fn () => $context->analyzer->count() === 0
 );
