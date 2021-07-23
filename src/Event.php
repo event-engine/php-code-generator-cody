@@ -101,28 +101,28 @@ final class Event extends BaseHook
         );
 
         if (! empty($schemas)) {
-            $key = \key($schemas);
+//            $key = \key($schemas);
 
-            if (\file_exists($schemas[$key]['filename'])) {
-                throw CodyQuestion::withQuestionResponse(
-                    Response::question(
-                        \sprintf('Should I overwrite the file "%s"?', $schemas[$key]['filename']),
-                        function (string $answer) use ($schemas) {
-                            if (Question::isAnswerYes($answer)) {
-                                $this->writeFiles($schemas);
-                                $msg = "✔️ Command schema file written\n";
-                            } else {
-                                $msg = "⬤ Skipped: Command schema file written\n";
-                            }
-
-                            return Response::fromCody(
-                                "You're the boss",
-                                ['%c' . $msg, 'color: #73dd8e;font-weight: bold']
-                            );
-                        }
-                    )
-                );
-            }
+//            if (\file_exists($schemas[$key]['filename'])) {
+//                throw CodyQuestion::withQuestionResponse(
+//                    Response::question(
+//                        \sprintf('Should I overwrite the file "%s"?', $schemas[$key]['filename']),
+//                        function (string $answer) use ($schemas) {
+//                            if (Question::isAnswerYes($answer)) {
+//                                $this->writeFiles($schemas);
+//                                $msg = "✔️ Command schema file written\n";
+//                            } else {
+//                                $msg = "⬤ Skipped: Command schema file written\n";
+//                            }
+//
+//                            return Response::fromCody(
+//                                "You're the boss",
+//                                ['%c' . $msg, 'color: #73dd8e;font-weight: bold']
+//                            );
+//                        }
+//                    )
+//                );
+//            }
             $this->writeFiles($schemas);
             $this->successDetails .= "✔️ Event schema file written\n";
         }
