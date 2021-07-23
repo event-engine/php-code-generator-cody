@@ -48,6 +48,7 @@ final class Aggregate extends BaseHook
 
         // description code generation
         $this->aggregate->generateApiDescription($connection, $ctx->analyzer, $fileCollection);
+        $this->aggregate->generateApiDescriptionClassMap($connection, $ctx->analyzer, $fileCollection);
 
         // aggregate state code generation
         $this->aggregate->generateAggregateStateFile($connection, $ctx->analyzer, $fileCollection);

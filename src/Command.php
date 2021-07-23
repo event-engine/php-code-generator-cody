@@ -54,6 +54,7 @@ final class Command extends BaseHook
         }
 
         $this->command->generateApiDescription($connection, $ctx->analyzer, $fileCollection, $jsonSchemaFile);
+        $this->command->generateApiDescriptionClassMap($connection, $ctx->analyzer, $fileCollection);
         $this->command->generateCommandFile($connection, $ctx->analyzer, $fileCollection);
 
         $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());

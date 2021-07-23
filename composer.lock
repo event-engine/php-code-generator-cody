@@ -159,12 +159,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/event-engine/php-code-generator-event-engine-ast.git",
-                "reference": "c2ecdbcab75a55dfc686f3732e51a91638678750"
+                "reference": "f4ce3a806ae6397f64f007432d0894f857da4ff9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/event-engine/php-code-generator-event-engine-ast/zipball/c2ecdbcab75a55dfc686f3732e51a91638678750",
-                "reference": "c2ecdbcab75a55dfc686f3732e51a91638678750",
+                "url": "https://api.github.com/repos/event-engine/php-code-generator-event-engine-ast/zipball/f4ce3a806ae6397f64f007432d0894f857da4ff9",
+                "reference": "f4ce3a806ae6397f64f007432d0894f857da4ff9",
                 "shasum": ""
             },
             "require": {
@@ -224,7 +224,7 @@
                 "issues": "https://github.com/event-engine/php-code-generator-event-engine-ast/issues",
                 "source": "https://github.com/event-engine/php-code-generator-event-engine-ast"
             },
-            "time": "2021-07-23T13:00:33+00:00"
+            "time": "2021-07-23T15:13:48+00:00"
         },
         {
             "name": "event-engine/php-inspectio-cody",

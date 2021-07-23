@@ -71,6 +71,7 @@ final class Event extends BaseHook
 
         // event description code generation
         $this->event->generateApiDescription($connection, $ctx->analyzer, $fileCollection, $jsonSchemaFile);
+        $this->event->generateApiDescriptionClassMap($connection, $ctx->analyzer, $fileCollection);
         $this->event->generateEventFile($connection, $ctx->analyzer, $fileCollection);
 
         $files = $this->config->config()->getObjectGenerator()->generateFiles($fileCollection, $ctx->printer->codeStyle());
